@@ -1,0 +1,15 @@
+<odoo>
+    <record id="view_order_form_inherited" model="ir.ui.view">
+        <field name="name">sale.order.form.inherited</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="priority" eval="100"/>
+        <field name="arch" type="xml">
+            <!-- Ocultar el campo 'partner_id' si viene desde una tarea -->
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="default">context.get('default_partner_id', False)</attribute>
+                <attribute name="readonly">1</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>
