@@ -39,3 +39,31 @@ class SaleOrder(models.Model):
 
 
             return sale_order
+        
+    def action_create_production_orders(self):
+        
+        """ Crea órdenes de producción y tareas en el proyecto asignado """
+        stage = self.env["project.task.type"].search([("name", "=", "Por Fabricar")], limit=1)
+        if not stage:
+            raise ValueError("No existe la etapa 'Por Fabricar' en proyectos.")
+
+        for line in self.order_line:
+            if not line.product_id:
+                continue
+
+            # Crear la orden de producción
+            production_order = self.env["mrp.production"].create({
+                "product_id": line.product_id.id,
+                "product_qty": line.product_uom_qty,
+                "sale_order_id": self.id,
+            })
+
+            # Crear la tarea en el proyecto asociado
+            if self.project_id:
+                self.env["project.task"].create({
+                    "name": f"Fabricar {line.product_id.display_name}",
+                    "project_id": self.project_id.id,
+                    "sale_line_id": line.id,
+                    "stage_id": stage.id,
+                    "description": f"Orden de producción creada: {production_order.name}",
+                })

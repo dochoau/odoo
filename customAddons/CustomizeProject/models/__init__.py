@@ -1,1 +1,1 @@
-from . import project, task, sale_order
+from . import project, task

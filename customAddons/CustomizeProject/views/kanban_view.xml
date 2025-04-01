@@ -19,13 +19,6 @@
                             class="oe_button"
                             icon="fa-play"/>          
             </xpath>
-            <xpath expr="//t[@t-name='card']/main" position="inside">
-                <button name="open_related_document"
-                            type="object"
-                            string="Mandar a Fabricar"
-                            class="oe_button"
-                            icon="fa-play"/>          
-            </xpath>
         </field>
     </record>
 </odoo>
