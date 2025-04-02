@@ -63,22 +63,21 @@ class ProjectTask(models.Model):
                     'res_model': 'sale.order',
                     'view_mode': 'form',
                     'context': {
-                        'default_partner_id': self.partner_id.id,
-                        #'default_origin': self.name,  # Para enlazar la cotización con la tarea
+                        'default_partner_id': self.partner_id.id, 
+                        'default_project_id': self.project_id.id, 
                         'default_task_id': self.id,
                         'target': 'new',
                         'force_context': True
                     },
                 }
 
-        elif self.manufacturing_order_id:
+        elif stage_name == "por fabricar":
             return {
                 'name': "Orden de Producción",
                 'type': 'ir.actions.act_window',
                 'res_model': 'mrp.production',
                 'view_mode': 'form',
                 'res_id': self.manufacturing_order_id.id,
-                'target': 'current',
                 'target': 'new',
                 'force_context': True
             }

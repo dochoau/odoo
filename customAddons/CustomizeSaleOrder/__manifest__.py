@@ -1,5 +1,5 @@
 {
-    "name": "Automatización de Producción desde Ventas",
+    "name": "CustomizeSaleOrder",
     "version": "1.0",
     "depends": ["sale", "mrp", "project","CustomizeMRP"],
     'license': 'LGPL-3',
