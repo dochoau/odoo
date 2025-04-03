@@ -15,7 +15,6 @@ class ProjectProject(models.Model):
     )
 
     #Sobre escribe el método Create
-    @api.model_create_multi
     def create(self, vals_list):
         """Sobrescribe create para agregar las etapas en un orden específico."""
         stage_model = self.env['project.task.type']
@@ -34,7 +33,7 @@ class ProjectProject(models.Model):
                 })
             else:
                 # Si ya existe, aseguramos que la secuencia sea la correcta
-                stage.write({'sequence': index})
+                stage.write({'sequence': index}, cond = False)
             stages[stage_name] = stage
 
         # Crear los proyectos normalmente
@@ -43,13 +42,13 @@ class ProjectProject(models.Model):
         for project in projects:
             # Asociar las etapas al proyecto
             for stage in stages.values():
-                stage.write({'project_ids': [(4, project.id)]})
+                stage.write({'project_ids': [(4, project.id)]}, cond = False)
 
             # Crear la tarea "Cotizar" en la etapa "Cotizar"
             self.env['project.task'].create({
                 'name': 'Cotizar',
                 'project_id': project.id,
-                'stage_id': stages['Cotizar'].id,  # Asignar a la etapa "Cotizar"
-            })
+                'stage_id': stages['Cotizar'].id  # Asignar a la etapa "Cotizar"
+            }, cond = False)
 
         return projects

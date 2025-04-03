@@ -11,17 +11,19 @@ class ProjectTask(models.Model):
     sale_order_id = fields.Many2one('sale.order', string="Cotización")
     manufacturing_order_id = fields.Many2one('mrp.production', string="Orden de Producción")
 
-    @api.model_create_multi
-    def create(self, vals):
+    def create(self, vals, cond = True):
         """Evita la creación de tareas que no cumplan con las condiciones"""
         # Buscar la etapa "Cotizar" en el modelo correcto: project.task.type
         cotizar_stage = self.env['project.task.type'].search([('name', '=', 'Cotizar')], limit=1)
+        por_fabricar_stage = self.env['project.task.type'].search([('name', '=', 'Por Fabricar')], limit=1)
 
         # Asegurar que estamos manejando una lista de valores
-        for val in vals:
-            if val.get('stage_id') == cotizar_stage.id:
-                if val.get('name') != 'Cotizar':
-                    raise exceptions.UserError(("Solo se pueden crear cotizaciones"))
+        if vals.get('stage_id') == cotizar_stage.id and cond:
+            if vals.get('name') != 'Cotizar':
+                raise exceptions.UserError(("Solo se pueden crear cotizaciones"))
+        
+        if vals.get('stage_id') == por_fabricar_stage.id and cond:
+            raise exceptions.UserError(("No puede crear nuevas ordenes de producción"))               
 
         return super().create(vals)
 
@@ -35,7 +37,7 @@ class ProjectTask(models.Model):
                 raise exceptions.UserError("No puedes mover tareas entre etapas.")
         return super().write(vals)
 
-    #Hay que revisar a futuro esta función para eliminar productos que no se vayan a fabricar
+    #Activar esta función para que a futuro no se puedan borrar tareas creadas
     # def unlink(self):
     #     for task in self:
     #         if task.is_default_task:
@@ -62,7 +64,6 @@ class ProjectTask(models.Model):
                     'res_model': 'sale.order',
                     'view_mode': 'form',
                     'res_id': self.sale_order_id.id,
-                    'target': 'new',
                     'force_context': True
                 }
             else:
@@ -71,11 +72,11 @@ class ProjectTask(models.Model):
                     'type': 'ir.actions.act_window',
                     'res_model': 'sale.order',
                     'view_mode': 'form',
+                    'target': 'new',
                     'context': {
                         'default_partner_id': self.partner_id.id, 
                         'default_project_id': self.project_id.id, 
                         'default_task_id': self.id,
-                        'target': 'new',
                         'force_context': True
                     },
                 }
@@ -87,7 +88,6 @@ class ProjectTask(models.Model):
                 'res_model': 'mrp.production',
                 'view_mode': 'form',
                 'res_id': self.manufacturing_order_id.id,
-                'target': 'new',
                 'force_context': True
             }
 
