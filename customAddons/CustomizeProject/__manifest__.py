@@ -9,8 +9,7 @@
     'data': [
         'security/ir.model.access.csv',
         'views/project_views.xml',
-        'views/kanban_view.xml',
-        'views/custom_project_task.xml'
+        'views/kanban_view.xml'
     ],
     'installable': True,
     'application': False,

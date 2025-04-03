@@ -11,19 +11,28 @@ class ProjectTask(models.Model):
     sale_order_id = fields.Many2one('sale.order', string="Cotización")
     manufacturing_order_id = fields.Many2one('mrp.production', string="Orden de Producción")
 
+    @api.model_create_multi
+    def create(self, vals):
+        """Evita la creación de tareas que no cumplan con las condiciones"""
+        # Buscar la etapa "Cotizar" en el modelo correcto: project.task.type
+        cotizar_stage = self.env['project.task.type'].search([('name', '=', 'Cotizar')], limit=1)
 
-    #A futuro hay que corregir esta tarea para que no permita crear algo que no sea una cotización
-    # @api.model_create_multi
-    # def create(self, vals):
-    #     task = super().create(vals)
-    #     if task.name in ['Cotizar', 'Fabricación', 'Entrega']:
-    #         task.is_default_task = True
-    #     return task
+        # Asegurar que estamos manejando una lista de valores
+        for val in vals:
+            if val.get('stage_id') == cotizar_stage.id:
+                if val.get('name') != 'Cotizar':
+                    raise exceptions.UserError(("Solo se pueden crear cotizaciones"))
+
+        return super().create(vals)
 
     def write(self, vals):
         for task in self:
             if task.is_default_task and any(field in vals for field in ['name', 'project_id']):
                 raise exceptions.UserError("No puedes modificar una tarea predefinida.")
+            
+            #Evita que arraste la tarea
+            if 'stage_id' in vals:  # Verifica si se intenta cambiar la etapa
+                raise exceptions.UserError("No puedes mover tareas entre etapas.")
         return super().write(vals)
 
     #Hay que revisar a futuro esta función para eliminar productos que no se vayan a fabricar

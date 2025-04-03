@@ -17,20 +17,24 @@ class ProjectProject(models.Model):
     #Sobre escribe el método Create
     @api.model_create_multi
     def create(self, vals_list):
-        """Sobrescribe create para agregar las etapas 'Cotizar', 'Fabricación' y 'Entrega'.
-           Además, crea la tarea 'Cotizar' en la etapa 'Cotizar' automáticamente.
-        """
+        """Sobrescribe create para agregar las etapas en un orden específico."""
         stage_model = self.env['project.task.type']
         
-        # Definir las etapas necesarias
-        stage_names = ['Cotizar', 'Por Fabricar','Fabricando', 'Terminado' , 'Por Entregar','Entregado']
+        # Definir las etapas necesarias con su secuencia
+        stage_names = ['Cotizar', 'Por Fabricar', 'Fabricando', 'Terminado', 'Por Entregar', 'Entregado']
         stages = {}
 
-        # Buscar o crear las etapas
-        for stage_name in stage_names:
+        # Buscar o crear las etapas en el orden correcto
+        for index, stage_name in enumerate(stage_names):
             stage = stage_model.search([('name', '=', stage_name)], limit=1)
             if not stage:
-                stage = stage_model.create({'name': stage_name})
+                stage = stage_model.create({
+                    'name': stage_name,
+                    'sequence': index  # Asegurar que se mantenga el orden correcto
+                })
+            else:
+                # Si ya existe, aseguramos que la secuencia sea la correcta
+                stage.write({'sequence': index})
             stages[stage_name] = stage
 
         # Crear los proyectos normalmente
