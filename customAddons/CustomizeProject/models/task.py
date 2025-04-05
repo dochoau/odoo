@@ -6,6 +6,7 @@ class ProjectTask(models.Model):
 
     #Genera la marca de tarea por defecto
     is_default_task = fields.Boolean(string="Tarea por defecto", default=False)
+    control_arrastre = fields.Boolean(string="TControla que no muevan las tareas", default=True)
 
     #Crea la relación entre la tarea y las cotizaciones y ordenes de producción
     sale_order_id = fields.Many2one('sale.order', string="Cotización")
@@ -27,13 +28,13 @@ class ProjectTask(models.Model):
 
         return super().create(vals)
 
-    def write(self, vals):
+    def write(self, vals, cond=True):
         for task in self:
             if task.is_default_task and any(field in vals for field in ['name', 'project_id']):
                 raise exceptions.UserError("No puedes modificar una tarea predefinida.")
             
             #Evita que arraste la tarea
-            if 'stage_id' in vals:  # Verifica si se intenta cambiar la etapa
+            if 'stage_id' in vals and cond:  # Verifica si se intenta cambiar la etapa
                 raise exceptions.UserError("No puedes mover tareas entre etapas.")
         return super().write(vals)
 
@@ -63,6 +64,7 @@ class ProjectTask(models.Model):
                     'type': 'ir.actions.act_window',
                     'res_model': 'sale.order',
                     'view_mode': 'form',
+                    'target': 'current',
                     'res_id': self.sale_order_id.id,
                     'force_context': True
                 }
@@ -72,10 +74,11 @@ class ProjectTask(models.Model):
                     'type': 'ir.actions.act_window',
                     'res_model': 'sale.order',
                     'view_mode': 'form',
-                    'target': 'new',
+                    'target': 'current',
                     'context': {
                         'default_partner_id': self.partner_id.id, 
-                        'default_project_id': self.project_id.id, 
+                        'default_project_id': self.project_id.id,
+                        'default_project_name': self.project_id.name,  
                         'default_task_id': self.id,
                         'force_context': True
                     },
@@ -90,6 +93,23 @@ class ProjectTask(models.Model):
                 'res_id': self.manufacturing_order_id.id,
                 'force_context': True
             }
-
+        elif stage_name == "fabricando":
+            return {
+                'name': "Orden de Producción",
+                'type': 'ir.actions.act_window',
+                'res_model': 'mrp.production',
+                'view_mode': 'form',
+                'res_id': self.manufacturing_order_id.id,
+                'force_context': True
+            }
+        elif stage_name == "terminado":
+            return {
+                'name': "Orden de Producción",
+                'type': 'ir.actions.act_window',
+                'res_model': 'mrp.production',
+                'view_mode': 'form',
+                'res_id': self.manufacturing_order_id.id,
+                'force_context': True
+            }
         else:
             raise UserError("No hay documentos asociados a esta tarea.")

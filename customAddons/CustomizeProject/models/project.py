@@ -20,7 +20,7 @@ class ProjectProject(models.Model):
         stage_model = self.env['project.task.type']
         
         # Definir las etapas necesarias con su secuencia
-        stage_names = ['Cotizar', 'Por Fabricar', 'Fabricando', 'Terminado', 'Por Entregar', 'Entregado']
+        stage_names = ['Cotizar', 'Por Fabricar', 'Fabricando', 'Terminado', 'Instalación', 'Entregado']
         stages = {}
 
         # Buscar o crear las etapas en el orden correcto

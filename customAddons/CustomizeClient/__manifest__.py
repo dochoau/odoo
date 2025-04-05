@@ -1,5 +1,5 @@
 {
-    'name': 'Tipos de Identificación para Colombia',
+    'name': 'Customizeclient',
     'version': '1.0',
     'author': 'David',
     'license': 'LGPL-3',  # Agrega esta línea

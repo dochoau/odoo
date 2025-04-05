@@ -1,5 +1,5 @@
 {
-    'name': "Customize Project",
+    'name': "CustomizeProject",
     'version': '1.0',
     'summary': "Modifica los proyectos y las cotizaciones",
     'category': 'Project',

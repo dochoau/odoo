@@ -6,4 +6,7 @@
     'author': "David Ochoa",
     "installable": True,
     "auto_install": False,
+    'data': [
+        'views/custom_mrp_view.xml'
+    ],
 }
