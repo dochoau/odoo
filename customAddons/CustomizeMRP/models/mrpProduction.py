@@ -9,6 +9,7 @@ class MrpProduction(models.Model):
     sale_order_id = fields.Many2one("sale.order", string="Cotización Relacionada")
     task_id = fields.Many2one('project.task', string="Tarea Relacionada")
     employee_id = fields.Many2one('hr.employee', string='Responsable Fabricación')
+    description = fields.Text(string="Descripción del producto")
 
     def action_start(self):
         if not self.employee_id :

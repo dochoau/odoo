@@ -17,6 +17,9 @@
                         class="btn-primary"
                         icon="fa-cogs"/>
             </xpath>
+            <xpath expr="//field[@name='order_line']/list//field[@name='product_template_id']" position="after">
+                <field name="custom_description"/>
+            </xpath>
         </field>
     </record>
 </odoo>

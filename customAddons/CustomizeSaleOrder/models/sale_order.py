@@ -57,7 +57,8 @@ class SaleOrder(models.Model):
                     "product_id": line.product_id.id,
                     "product_qty": 1,
                     "sale_order_id": self.id,
-                    "origin" : project_name
+                    "origin" : project_name,
+                    "description" : line.custom_description
                 })
 
                 # Crear la tarea en el proyecto asociado
