@@ -9,6 +9,8 @@ class ProjectTaskStage(models.Model):
             raise exceptions.UserError(('Acción Inválida'))
         if 'sequence' in vals and cond:
             raise exceptions.UserError(("Acción Inválida"))
+        if 'active' in vals and not vals['active']:
+            raise exceptions.UserError(_("No está permitido archivar etapas."))
         return super().write(vals)
 
 

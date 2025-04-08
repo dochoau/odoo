@@ -1,5 +1,8 @@
 from odoo import models, fields, api, exceptions
 from odoo.exceptions import UserError
+import logging
+
+logger = logging.getLogger(__name__)
 
 class ProjectTask(models.Model):
     _inherit = 'project.task'
@@ -14,21 +17,68 @@ class ProjectTask(models.Model):
 
     def create(self, vals, cond = True):
         """Evita la creación de tareas que no cumplan con las condiciones"""
-        # Buscar la etapa "Cotizar" en el modelo correcto: project.task.type
+
         cotizar_stage = self.env['project.task.type'].search([('name', '=', 'Cotizar')], limit=1)
         por_fabricar_stage = self.env['project.task.type'].search([('name', '=', 'Por Fabricar')], limit=1)
+        fabricando_stage = self.env['project.task.type'].search([('name', '=', 'Fabricando')], limit=1)
+        terminado_stage = self.env['project.task.type'].search([('name', '=', 'Terminado')], limit=1)
+        instalacion_stage = self.env['project.task.type'].search([('name', '=', 'Instalación')], limit=1)
+        entregado_stage = self.env['project.task.type'].search([('name', '=', 'Entregado')], limit=1)
+        logger.info(vals.get('stage_id'))
+        logger.info(self.stage_id.id)
+        logger.info(vals)
+        #logger.info(self[0].stage_id)
+        if not vals.get('stage_id'): 
+            raise exceptions.UserError(("No puede crear nuevas tareas en esta étapa"))   
 
-        # Asegurar que estamos manejando una lista de valores
         if vals.get('stage_id') == cotizar_stage.id and cond:
             if vals.get('name') != 'Cotizar':
                 raise exceptions.UserError(("Solo se pueden crear cotizaciones"))
         
         if vals.get('stage_id') == por_fabricar_stage.id and cond:
-            raise exceptions.UserError(("No puede crear nuevas ordenes de producción"))               
+            raise exceptions.UserError(("No puede crear nuevas ordenes de producción"))
+ 
+        if vals.get('stage_id') == fabricando_stage.id and cond:
+            raise exceptions.UserError(("No puede crear nuevas ordenes de producción"))       
 
+        if vals.get('stage_id') == terminado_stage.id and cond:
+            raise exceptions.UserError(("No puede crear nuevas tareas en esta étapa"))      
+
+        if vals.get('stage_id') == instalacion_stage.id and cond:
+            raise exceptions.UserError(("No puede crear nuevas tareas en esta étapa"))   
+           
+        if vals.get('stage_id') == entregado_stage.id and cond:
+            raise exceptions.UserError(("No puede crear nuevas tareas en esta étapa"))                              
+
+        #Asignar color dependiendo de la tarea
+
+        if vals.get('stage_id') == cotizar_stage.id:
+            vals['color'] = 8
+        elif vals.get('stage_id') == por_fabricar_stage.id:
+            vals['color'] = 1
+        elif vals.get('stage_id') == fabricando_stage.id:
+            vals['color'] = 3
+        elif vals.get('stage_id') == terminado_stage.id:
+            vals['color'] = 7
+        elif vals.get('stage_id') == instalacion_stage.id:
+            vals['color'] = 11
+        elif vals.get('stage_id') == entregado_stage.id:
+            vals['color'] = 10
+        
         return super().create(vals)
 
     def write(self, vals, cond=True):
+
+        if 'active' in vals and vals['active'] is False:
+            raise UserError(("No está permitido archivar tareas."))    
+        
+        cotizar_stage = self.env['project.task.type'].search([('name', '=', 'Cotizar')], limit=1)
+        por_fabricar_stage = self.env['project.task.type'].search([('name', '=', 'Por Fabricar')], limit=1)
+        fabricando_stage = self.env['project.task.type'].search([('name', '=', 'Fabricando')], limit=1)
+        terminado_stage = self.env['project.task.type'].search([('name', '=', 'Terminado')], limit=1)
+        instalacion_stage = self.env['project.task.type'].search([('name', '=', 'Instalación')], limit=1)
+        entregado_stage = self.env['project.task.type'].search([('name', '=', 'Entregado')], limit=1)
+
         for task in self:
             if task.is_default_task and any(field in vals for field in ['name', 'project_id']):
                 raise exceptions.UserError("No puedes modificar una tarea predefinida.")
@@ -36,6 +86,20 @@ class ProjectTask(models.Model):
             #Evita que arraste la tarea
             if 'stage_id' in vals and cond:  # Verifica si se intenta cambiar la etapa
                 raise exceptions.UserError("No puedes mover tareas entre etapas.")
+            
+        if vals.get('stage_id') == cotizar_stage.id:
+            vals['color'] = 8
+        elif vals.get('stage_id') == por_fabricar_stage.id:
+            vals['color'] = 1
+        elif vals.get('stage_id') == fabricando_stage.id:
+            vals['color'] = 3
+        elif vals.get('stage_id') == terminado_stage.id:
+            vals['color'] = 7
+        elif vals.get('stage_id') == instalacion_stage.id:
+            vals['color'] = 11
+        elif vals.get('stage_id') == entregado_stage.id:
+            vals['color'] = 10
+
         return super().write(vals)
 
     #Activar esta función para que a futuro no se puedan borrar tareas creadas
@@ -104,12 +168,27 @@ class ProjectTask(models.Model):
             }
         elif stage_name == "terminado":
             return {
-                'name': "Orden de Producción",
+                'name': ('Iniciar Proceso de Instalación'),
                 'type': 'ir.actions.act_window',
-                'res_model': 'mrp.production',
+                'res_model': 'installation.wizard',
                 'view_mode': 'form',
-                'res_id': self.manufacturing_order_id.id,
-                'force_context': True
+                'target': 'new',
+                'context': {
+                    'active_id': self.id,
+                    'active_model': 'project.task',
+                }
             }
+        elif stage_name == "instalación":
+            return {
+                'name': ('Iniciar Proceso de Instalación'),
+                'type': 'ir.actions.act_window',
+                'res_model': 'delivery.wizard',
+                'view_mode': 'form',
+                'target': 'new',
+                'context': {
+                    'active_id': self.id,
+                    'active_model': 'project.task',
+                }
+            }    
         else:
             raise UserError("No hay documentos asociados a esta tarea.")
