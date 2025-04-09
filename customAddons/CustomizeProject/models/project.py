@@ -13,6 +13,7 @@ class ProjectProject(models.Model):
         required=True,  # Opcional: si quieres que siempre se seleccione un cliente
         help="Cliente asociado a este proyecto."
     )
+    last_stage = fields.Char(string='Última Etapa', readonly=True)
 
     #Sobre escribe el método Create
     def create(self, vals_list):
@@ -52,3 +53,65 @@ class ProjectProject(models.Model):
             }, cond = False)
 
         return projects
+
+    def _update_project_stage_info(self):
+            stage_order = ['Cotizar', 'Por Fabricar', 'Fabricando', 'Terminado', 'Instalación', 'Entregado']
+            stage_color_map = {
+                'Cotizar': 8,
+                'Por Fabricar': 1,
+                'Fabricando': 3,
+                'Terminado': 7,
+                'Instalación': 11,
+                'Entregado': 10
+            }
+
+            for project in self:
+                tasks = project.task_ids.filtered(lambda t: t.stage_id.name in stage_order)
+                tasks_min = project.task_ids.filtered(lambda t: t.stage_id.name in stage_order and t.stage_id.name != 'Cotizar')
+
+                # Buscar la etapa más avanzada
+                most_advanced_task = max(
+                    tasks, key=lambda t: stage_order.index(t.stage_id.name)
+                )
+                stage_name = most_advanced_task.stage_id.name
+
+                # Buscar la etapa menos avanzada (índice más bajo)
+                least_advanced_task = min(
+                    tasks_min, key=lambda t: stage_order.index(t.stage_id.name)
+                )
+
+                least_stage_name = least_advanced_task.stage_id.name                
+
+                status = ""
+                if stage_name == "Cotizar":
+                    status = "Cotizando"
+                    color = 8
+                elif stage_name == "Por Fabricar":
+                    status = "Pendiente por Fabricar"
+                    color = 1                    
+                elif stage_name == "Fabricando"  :
+                    status = "Fabricando"
+                    color = 3                           
+                elif stage_name == "Terminado" and  least_stage_name != "Terminado" :
+                    status = "Fabricando"
+                    color = 3                        
+                elif stage_name == "Terminado" and  least_stage_name == "Terminado" :
+                    status = "Terminado"
+                    color = 7                      
+                elif stage_name == "Instalación" and  least_stage_name in ("Por Fabricar", "Fabricando") :
+                    status = "Instalando-Fabricando"
+                    color = 11    
+                elif stage_name == "Instalación" and  least_stage_name in ("Instalación", "Terminado") :
+                    status = "Instalando"
+                    color = 11    
+                elif stage_name == "Entregado" and least_stage_name != "Entregado":
+                    status = "Entregando"
+                    color = 11    
+                elif least_stage_name == "Entregado":
+                    status = "Proyecto Entregado Totalmente"
+                    color = 10
+
+                project.write({
+                    'color': color,
+                    'last_stage': status
+                })

@@ -24,10 +24,7 @@ class ProjectTask(models.Model):
         terminado_stage = self.env['project.task.type'].search([('name', '=', 'Terminado')], limit=1)
         instalacion_stage = self.env['project.task.type'].search([('name', '=', 'Instalación')], limit=1)
         entregado_stage = self.env['project.task.type'].search([('name', '=', 'Entregado')], limit=1)
-        logger.info(vals.get('stage_id'))
-        logger.info(self.stage_id.id)
-        logger.info(vals)
-        #logger.info(self[0].stage_id)
+
         if not vals.get('stage_id'): 
             raise exceptions.UserError(("No puede crear nuevas tareas en esta étapa"))   
 
@@ -65,7 +62,10 @@ class ProjectTask(models.Model):
         elif vals.get('stage_id') == entregado_stage.id:
             vals['color'] = 10
         
-        return super().create(vals)
+        #Actualiza el color del proyecto
+        task = super().create(vals) 
+        task.project_id._update_project_stage_info()
+        return task
 
     def write(self, vals, cond=True):
 
@@ -100,7 +100,12 @@ class ProjectTask(models.Model):
         elif vals.get('stage_id') == entregado_stage.id:
             vals['color'] = 10
 
-        return super().write(vals)
+        #Actualiza el color del proyecto
+        task = super().write(vals) 
+        for task_u in self:
+            task_u.project_id._update_project_stage_info()
+        return task
+            
 
     #Activar esta función para que a futuro no se puedan borrar tareas creadas
     # def unlink(self):
@@ -192,3 +197,7 @@ class ProjectTask(models.Model):
             }    
         else:
             raise UserError("No hay documentos asociados a esta tarea.")
+############Pendiente qué hacer con el botón de la última tarea############################
+        
+
+
