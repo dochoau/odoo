@@ -58,8 +58,7 @@ class SaleOrder(models.Model):
                     "product_qty": 1,
                     "sale_order_id": self.id,
                     "origin" : project_name,
-                    "description" : line.custom_description
-                })
+                    "description" : line.custom_description                })
 
                 # Crear la tarea en el proyecto asociado
                 
@@ -72,4 +71,3 @@ class SaleOrder(models.Model):
                 }, cond = False)
                 production_order.task_id = task.id
                 production_order.state ="confirmed"
-#####Falta Asignar los comentarios que hay en la cotización en las ordenes de producción######

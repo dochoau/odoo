@@ -1,4 +1,8 @@
 from odoo import models, fields, api
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class ProjectProject(models.Model):
     _inherit = 'project.project'
@@ -14,6 +18,8 @@ class ProjectProject(models.Model):
         help="Cliente asociado a este proyecto."
     )
     last_stage = fields.Char(string='Última Etapa', readonly=True)
+
+
 
     #Sobre escribe el método Create
     def create(self, vals_list):
@@ -76,18 +82,25 @@ class ProjectProject(models.Model):
                 stage_name = most_advanced_task.stage_id.name
 
                 # Buscar la etapa menos avanzada (índice más bajo)
-                least_advanced_task = min(
-                    tasks_min, key=lambda t: stage_order.index(t.stage_id.name)
-                )
+                try:
+                    least_advanced_task = min(
+                        tasks_min, key=lambda t: stage_order.index(t.stage_id.name)
+                    )
 
-                least_stage_name = least_advanced_task.stage_id.name                
+                    least_stage_name = least_advanced_task.stage_id.name
+                    logger.info("Mínima tarea" + least_stage_name) 
+                except Exception as e:
+                    pass
+
+                logger.info("última tarea" + stage_name)
+                
 
                 status = ""
                 if stage_name == "Cotizar":
                     status = "Cotizando"
                     color = 8
                 elif stage_name == "Por Fabricar":
-                    status = "Pendiente por Fabricar"
+                    status = "Por Fabricar"
                     color = 1                    
                 elif stage_name == "Fabricando"  :
                     status = "Fabricando"
@@ -108,10 +121,9 @@ class ProjectProject(models.Model):
                     status = "Entregando"
                     color = 11    
                 elif least_stage_name == "Entregado":
-                    status = "Proyecto Entregado Totalmente"
+                    status = "Terminado"
                     color = 10
 
                 project.write({
                     'color': color,
-                    'last_stage': status
-                })
+                    'last_stage': status                })
