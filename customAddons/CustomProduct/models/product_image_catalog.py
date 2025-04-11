@@ -11,3 +11,5 @@ class ProductImageCatalog(models.Model):
     required=True,
     readonly=True,
     default=lambda self: self.env.context.get('default_product_id'))
+    _rec_name = 'name'  # o cualquier campo representativo
+    _preview = 'image'  

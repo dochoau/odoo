@@ -26,11 +26,19 @@ class SaleOrder(models.Model):
                     val["project_id"] = project.id
 
             sale_orders = super(SaleOrder, self).create(vals)  # Crear cotizaciones
+
             
             for order in sale_orders:
                 if order.task_id:
                     order.task_id.sale_order_id = order.id  # Asignar la cotización a la tarea
-
+                # Se le agrega la imagen de cada producto
+                logger.info("Entra")
+                for line in order.order_line:
+                    logger.info(line)
+                    if line.product_id and line.product_id.image_1920:
+                        line.write({
+                            'product_image_field': line.product_id.image_1920
+                        })
             return sale_orders
 
         
@@ -43,10 +51,11 @@ class SaleOrder(models.Model):
         if self.has_created_production_orders:
             raise exceptions.UserError(("Ya se creó las ordenes de producción"))
 
-#####Falta Asignar los comentarios que hay en la cotización en las ordenes de producción######        
+ 
         #Obtener el nombre del proyecto
         project_name = self.env.context.get('default_project_name', False)
         for line in self.order_line:
+            logger.info(line.product_image_field)
             qty = int(line.product_uom_qty)
             self.has_created_production_orders = True
             if not line.product_id:

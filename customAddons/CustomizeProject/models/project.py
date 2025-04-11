@@ -88,11 +88,11 @@ class ProjectProject(models.Model):
                     )
 
                     least_stage_name = least_advanced_task.stage_id.name
-                    logger.info("Mínima tarea" + least_stage_name) 
+
                 except Exception as e:
                     pass
 
-                logger.info("última tarea" + stage_name)
+
                 
 
                 status = ""

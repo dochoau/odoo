@@ -1,4 +1,5 @@
 <odoo>
+    <!-- Edición de la interfaz -->
     <record id="view_order_form_inherited" model="ir.ui.view">
         <field name="name">sale.order.form.inherited</field>
         <field name="model">sale.order</field>
@@ -19,6 +20,13 @@
                         string="Crear Ordenes de Producción"
                         class="btn-primary"
                         icon="fa-cogs"/>
+            </xpath>
+            <xpath expr="//header/button[@name='action_quotation_send']" position="after">
+                <button name="%(action_report_saleorder_custom)d"
+                        string="Imprimir Cotización Personalizada"
+                        type="action"
+                        class="btn-primary"
+                        context="{'print_mode': 'custom'}"/>
             </xpath>
             <xpath expr="//field[@name='order_line']/list//field[@name='product_template_id']" position="after">
                 <field name="custom_description"/>
