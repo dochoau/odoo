@@ -5,9 +5,9 @@
     'license': 'LGPL-3',
     'author': "David Ochoa",
     "data": [
-        'reports/report_sale_order_custom_pdf.xml',
-        'reports/custom_sale_order_buttons.xml',
         "views/cotizacion_view.xml",
+        "reports/report_saleorder_template.xml",
+        "reports/reports_f.xml",
      ],
     "installable": True,
     "auto_install": False,

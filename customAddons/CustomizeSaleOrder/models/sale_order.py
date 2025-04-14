@@ -31,14 +31,7 @@ class SaleOrder(models.Model):
             for order in sale_orders:
                 if order.task_id:
                     order.task_id.sale_order_id = order.id  # Asignar la cotización a la tarea
-                # Se le agrega la imagen de cada producto
-                logger.info("Entra")
-                for line in order.order_line:
-                    logger.info(line)
-                    if line.product_id and line.product_id.image_1920:
-                        line.write({
-                            'product_image_field': line.product_id.image_1920
-                        })
+
             return sale_orders
 
         
@@ -53,7 +46,7 @@ class SaleOrder(models.Model):
 
  
         #Obtener el nombre del proyecto
-        project_name = self.env.context.get('default_project_name', False)
+        project_name = self.project_id.name
         for line in self.order_line:
             logger.info(line.product_image_field)
             qty = int(line.product_uom_qty)
@@ -80,3 +73,18 @@ class SaleOrder(models.Model):
                 }, cond = False)
                 production_order.task_id = task.id
                 production_order.state ="confirmed"
+
+    def action_ver_reporte_html(self):
+        self.ensure_one()
+
+        for line in self.order_line:
+             if line.product_id and line.product_id.image_1920:
+                line.write({
+                    'product_image_field': line.product_id.image_1920
+                })
+
+        return {
+            'type': 'ir.actions.act_url',
+            'url': f'/report/html/CustomizeSaleOrder.report_saleorder_custom_html/{self.id}',
+            'target': 'new',
+        }
