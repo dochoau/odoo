@@ -48,31 +48,32 @@ class SaleOrder(models.Model):
         #Obtener el nombre del proyecto
         project_name = self.project_id.name
         for line in self.order_line:
-            logger.info(line.product_image_field)
             qty = int(line.product_uom_qty)
             self.has_created_production_orders = True
             if not line.product_id:
                 continue
-            for i in range(qty):
-                # Crear la orden de producción
-                production_order = self.env["mrp.production"].create({
-                    "product_id": line.product_id.id,
-                    "product_qty": 1,
-                    "sale_order_id": self.id,
-                    "origin" : project_name,
-                    "description" : line.custom_description                })
+            if "Logística" not in line.product_id.name:
+                for i in range(qty):
+                    # Crear la orden de producción
+                    production_order = self.env["mrp.production"].create({
+                        "product_id": line.product_id.id,
+                        "product_qty": 1,
+                        "sale_order_id": self.id,
+                        "origin" : project_name,
+                        "description" : line.custom_description                })
 
-                # Crear la tarea en el proyecto asociado
-                
-                task = self.env["project.task"].create({
-                    "name": f"{project_name} - {line.product_id.display_name}({i+1})",
-                    "project_id": self.project_id.id,
-                    "stage_id": stage.id,
-                    "description": f"Orden de producción creada: {production_order.name}",
-                    "manufacturing_order_id" : production_order.id
-                }, cond = False)
-                production_order.task_id = task.id
-                production_order.state ="confirmed"
+                    # Crear la tarea en el proyecto asociado
+                    
+                    task = self.env["project.task"].create({
+                        "name": f"{project_name} - {line.product_id.display_name}({i+1})",
+                        "project_id": self.project_id.id,
+                        "stage_id": stage.id,
+                        "description": f"Orden de producción creada: {production_order.name}",
+                        "manufacturing_order_id" : production_order.id
+                    }, cond = False)
+                    production_order.task_id = task.id
+                    production_order.state ="confirmed"
+
 
     def action_ver_reporte_html(self):
         self.ensure_one()

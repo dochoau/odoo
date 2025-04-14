@@ -66,7 +66,7 @@
           <!-- Totales -->
           <div style="text-align: right; font-size: 18px; margin-top: 20px;">
             <p><strong>Subtotal (sin IVA):</strong> <span t-esc="o.currency_id.format(o.amount_untaxed)"/></p>
-            <p><strong>IVA:</strong> <span t-esc="o.currency_id.format(o.amount_tax)"/></p>
+            <p><strong>IVA(19%):</strong> <span t-esc="o.currency_id.format(o.amount_tax)"/></p>
             <p><strong>Total (con IVA):</strong> <span t-esc="o.currency_id.format(o.amount_total)"/></p>
           </div>
 
