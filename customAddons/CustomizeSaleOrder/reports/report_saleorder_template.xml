@@ -4,10 +4,10 @@
       <t t-foreach="docs" t-as="o">
 
         <!-- Contenedor general con borde (marco) -->
-        <div style="border: 1px solid #000; padding: 25px; font-family: Arial, sans-serif;">
+        <div style="border: 1px solid #ccc; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 25px; font-family: 'Segoe UI', sans-serif; background-color: #fff; margin-top: 60px;">
 
           <!-- Encabezado personalizado -->
-          <div style="margin-bottom: 20px;">
+          <div style="margin-bottom: 20px; margin-top: 20px;">
             <div style="display: flex; justify-content: space-between;">
               <div>
                 <strong style="font-size: 16px;">UNIVERSO GASTRONOMICO S.A.S</strong><br/>
@@ -18,7 +18,7 @@
                 <strong>PROYECTO:</strong> <span t-esc="o.project_id.name or ''"></span><br/>
               </div>
               <div>
-                <img t-att-src="'/logo.png'" style="width: 120px;"/>
+                <img t-att-src="'/logo.png'" style="width: 200px;"/>
               </div>
             </div>
             <p style="font-size: 16px; margin-top: 10px;">
@@ -77,8 +77,8 @@
           </div>   
 
           <!-- Disclaimer comercial -->
-          <div style="margin-top: 30px; font-size: 16px; border-top: 1px solid #000; padding-top: 15px;">
-            <strong style="font-size: 15px;">CONDICIONES COMERCIALES:</strong><br/>
+          <div style="margin-top: 30px; font-size: 15px; border-top: 1px solid #ccc; padding-top: 15px; line-height: 1.7; text-align: justify; color: #555;">
+            <strong >CONDICIONES COMERCIALES:</strong><br/>
             En Universo Gastronómico SAS fabricamos equipos a medida para cocinas industriales.<br/><br/>
 
             Los presentes términos y condiciones aplican a todos los equipos comprados en la empresa y el presente documento corresponde a una 

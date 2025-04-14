@@ -10,6 +10,12 @@
                     <field name="last_stage"/>
                 </span>
             </xpath>
+             <xpath expr="//field[@name='activity_ids']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='last_update_status']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
         </field>
     </record>
     <record id="view_project_filter_inherit_last_stage" model="ir.ui.view">
